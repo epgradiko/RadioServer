@@ -225,7 +225,7 @@ class Radiko():
             self.logger.error('{} not in available stations'.format(station))
             
     def download(self, station, ft, to):
-        self.logger.info('playing {},ft={},to={}'.format(station, ft, to))
+        self.logger.info('pastplaying {},ft={},to={}'.format(station, ft, to))
         if station in self.stations:
             url = (
                 'https://radiko.jp/v2/api/ts/playlist.m3u8?station_id=' 
@@ -236,11 +236,11 @@ class Radiko():
                 m3u8 = self.gen_temp_chunk_m3u8_url(url, Radiko.token)
                 if m3u8:
                     break
-                self.logger.info('getting new token')
+                self.logger.info('pastplaying getting new token')
                 token, area_id = self.get_token()
                 Radiko.token = token
             if not m3u8:
-                self.logger.error('gen_temp_chunk_m3u8_url fail')
+                self.logger.error('pastplaying gen_temp_chunk_m3u8_url fail')
             else:
                 cmd = (
                     "ffmpeg -y -headers 'X-Radiko-Authtoken:{}' -i '{}' "
@@ -250,7 +250,7 @@ class Radiko():
                     cmd, shell=True, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, preexec_fn=os.setsid
                 )
-                self.logger.debug('started subprocess: group id {}'
+                self.logger.debug('pastplaying started subprocess: group id {}'
                     .format(os.getpgid(proc.pid)))
 
                 try:
@@ -258,20 +258,20 @@ class Radiko():
                         out = proc.stdout.read(512)
                         if proc.poll() is not None:
                             self.logger.error(
-                                'subprocess died: {}'.format(station)
+                                'pastplaying subprocess died: {}'.format(station)
                             )
                             break
                         if out:
                             yield out
                 finally:
-                    self.logger.info('stop playing {},ft={},to={}'.format(station, ft, to))
+                    self.logger.info('stop pastplaying {},ft={},to={}'.format(station, ft, to))
                     if not proc.poll():
                         pgid = os.getpgid(proc.pid)
-                        self.logger.debug('killing process group {}'.format(pgid))
+                        self.logger.debug('pastplaying killing process group {}'.format(pgid))
                         os.killpg(pgid, signal.SIGTERM)
                         proc.wait()
         else:
-            self.logger.error('{} not in available stations'.format(station))
+            self.logger.error('pastplaying {} not in available stations'.format(station))
     
     def get_stations(self):
         res = urllib.request.urlopen(Radiko.CHANNEL_FULL_URL)
