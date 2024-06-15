@@ -227,49 +227,49 @@ class Radiko():
     def download(self, station, ft, to):
         self.logger.info('pastplaying {},ft={},to={}'.format(station, ft, to))
         if station in self.stations:
-            url = (
+            url_d = (
                 'https://radiko.jp/v2/api/ts/playlist.m3u8?station_id=' 
                 + station + 
                 '&l=15&ft=' + ft + '&to=' + to
             )
-            for ctr in range(2):
-                m3u8 = self.gen_temp_chunk_m3u8_url(url, Radiko.token)
-                if m3u8:
+            for ctr_d in range(2):
+                m3u8_d = self.gen_temp_chunk_m3u8_url(url_d, Radiko.token)
+                if m3u8_d:
                     break
                 self.logger.info('pastplaying getting new token')
                 token, area_id = self.get_token()
                 Radiko.token = token
-            if not m3u8:
+            if not m3u8_d:
                 self.logger.error('pastplaying gen_temp_chunk_m3u8_url fail')
             else:
-                cmd = (
+                cmd_d = (
                     "ffmpeg -y -headers 'X-Radiko-Authtoken:{}' -i '{}' "
                     "-acodec copy -f adts -loglevel error /dev/stdout"
-                ).format(Radiko.token, m3u8)
-                proc = subprocess.Popen(
-                    cmd, shell=True, stdout=subprocess.PIPE,
+                ).format(Radiko.token, m3u8_d)
+                proc_d = subprocess.Popen(
+                    cmd_d, shell=True, stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT, preexec_fn=os.setsid
                 )
                 self.logger.debug('pastplaying started subprocess: group id {}'
-                    .format(os.getpgid(proc.pid)))
+                    .format(os.getpgid(proc_d.pid)))
 
                 try:
                     while True:
-                        out = proc.stdout.read(512)
-                        if proc.poll() is not None:
+                        out_d = proc_d.stdout.read(512)
+                        if proc_d.poll() is not None:
                             self.logger.error(
                                 'pastplaying subprocess died: {}'.format(station)
                             )
                             break
-                        if out:
-                            yield out
+                        if out_d:
+                            yield out_d
                 finally:
                     self.logger.info('stop pastplaying {},ft={},to={}'.format(station, ft, to))
-                    if not proc.poll():
-                        pgid = os.getpgid(proc.pid)
-                        self.logger.debug('pastplaying killing process group {}'.format(pgid))
-                        os.killpg(pgid, signal.SIGTERM)
-                        proc.wait()
+                    # if not proc_d.poll():
+                    #     pgid_d = os.getpgid(proc_d.pid)
+                    #     self.logger.debug('pastplaying killing process group {}'.format(pgid_d))
+                    #     os.killpg(pgid_d, signal.SIGTERM)
+                    #     proc_d.wait()
         else:
             self.logger.error('pastplaying {} not in available stations'.format(station))
     
