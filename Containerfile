@@ -1,4 +1,4 @@
-ARG ALPINE_VER=3.18
+ARG ALPINE_VER=3.22
 # ffmpeg
 FROM docker.io/alpine:$ALPINE_VER as ffmpeg
 ###############################
@@ -35,7 +35,7 @@ RUN apk add --update --no-cache --virtual=dev \
     cd /tmp/ && \
     git clone https://git.ffmpeg.org/ffmpeg.git && \
     cd /tmp/ffmpeg && \
-    git checkout release/6.1 && \
+    git checkout release/5.1 && \
 # Compile ffmpeg.
     ./configure \
         --extra-version=radioserver0.1 \
