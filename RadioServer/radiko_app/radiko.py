@@ -165,7 +165,7 @@ class Radiko():
             res  = urllib.request.urlopen(req)
         except urllib.request.HTTPError as e:
             self.logger.error(e)
-            if e.code == 403:
+            if e.code == 403 or e.code == 401:
                 return None
             else:
                 raise e
